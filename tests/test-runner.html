@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarbonWise AI - Validation Test Runner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #0f172a;
+      --bg-card: #1e293b;
+      --text-base: #f8fafc;
+      --text-muted: #94a3b8;
+      --color-green: #10b981;
+      --color-red: #ef4444;
+      --border: #334155;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-base);
+      padding: 2rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .back-link {
+      color: var(--color-green);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .results-summary {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 2rem;
+    }
+    .summary-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .summary-num {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .text-green { color: var(--color-green); }
+    .text-red { color: var(--color-red); }
+    
+    .test-suites-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .suite-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .suite-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .test-case {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .test-name {
+      font-weight: 500;
+    }
+    .test-status {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .status-passed {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--color-green);
+    }
+    .status-failed {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: var(--color-red);
+    }
+    .error-details {
+      color: var(--color-red);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      font-family: monospace;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .test-case.failed .error-details {
+      display: block;
+    }
+    .test-case.failed {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .test-header-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>CarbonWise AI - Client Validation Tests</h1>
+      <p style="color: var(--text-muted); margin: 0.25rem 0 0 0;">Unit, Validation, and Boundary Edge Case Suite</p>
+    </div>
+    <a href="../index.html" class="back-link">← Return to Application</a>
+  </header>
+
+  <main>
+    <div class="results-summary">
+      <div class="summary-stat">
+        <span class="summary-num" id="total-tests">0</span>
+        <span style="color: var(--text-muted)">Total Tests</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-num text-green" id="passed-tests">0</span>
+        <span style="color: var(--text-muted)">Passed</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-num text-red" id="failed-tests">0</span>
+        <span style="color: var(--text-muted)">Failed</span>
+      </div>
+    </div>
+
+    <div class="test-suites-container" id="suites-root">
+      <!-- Generated dynamically by tests runner js -->
+    </div>
+  </main>
+
+  <!-- Load script first to export functions to global context -->
+  <script src="../script.js"></script>
+  <!-- Load testing suite assertions runner -->
+  <script src="test-runner.js"></script>
+</body>
+</html>

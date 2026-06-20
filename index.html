@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarbonWise AI - Carbon Footprint Tracker</title>
+  <meta name="description" content="Calculate, track, and reduce your carbon footprint with smart recommendations, what-if scenarios, and progress tracking.">
+  
+  <!-- PWA Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <link rel="apple-touch-icon" href="icon.svg">
+  
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <object data="icon.svg" type="image/svg+xml" class="logo-icon" aria-hidden="true" width="40" height="40"></object>
+        <h1>CarbonWise <span class="accent-text">AI</span></h1>
+      </div>
+      
+      <nav class="nav-menu" aria-label="Main Application Sections">
+        <ul role="tablist" class="tab-list">
+          <li role="presentation">
+            <button id="tab-dashboard" role="tab" aria-selected="true" aria-controls="panel-dashboard" class="tab-btn active" tabindex="0">
+              Dashboard
+            </button>
+          </li>
+          <li role="presentation">
+            <button id="tab-assess" role="tab" aria-selected="false" aria-controls="panel-assess" class="tab-btn" tabindex="-1">
+              Assessment
+            </button>
+          </li>
+          <li role="presentation">
+            <button id="tab-simulator" role="tab" aria-selected="false" aria-controls="panel-simulator" class="tab-btn" tabindex="-1">
+              Simulator
+            </button>
+          </li>
+          <li role="presentation">
+            <button id="tab-coach" role="tab" aria-selected="false" aria-controls="panel-coach" class="tab-btn" tabindex="-1">
+              Smart Coach
+            </button>
+          </li>
+          <li role="presentation">
+            <button id="tab-history" role="tab" aria-selected="false" aria-controls="panel-history" class="tab-btn" tabindex="-1">
+              History
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="install-btn" class="btn btn-secondary btn-sm hidden" aria-label="Install CarbonWise App">
+          Install App
+        </button>
+        <button id="theme-toggle" class="btn btn-icon" aria-label="Toggle between dark and light mode">
+          <span class="theme-icon-light" aria-hidden="true">☀️</span>
+          <span class="theme-icon-dark" aria-hidden="true">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    
+    <!-- DASHBOARD PANEL -->
+    <section id="panel-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" class="tab-panel active" tabindex="0">
+      <h2 class="sr-only">Dashboard</h2>
+      
+      <div class="dashboard-grid">
+        <!-- Score Card -->
+        <div class="card status-card">
+          <h3>Your Annual Carbon Score</h3>
+          <div class="score-display" aria-live="polite">
+            <span id="dash-score-value">0.00</span>
+            <span class="score-unit">t CO₂e / year</span>
+          </div>
+          <p class="impact-level-label">Impact Level: <span id="dash-impact-level" class="badge bg-green">Unknown</span></p>
+          <p class="card-desc">Based on your latest assessment. Retake assessments to track lifestyle improvement changes.</p>
+          <button id="quick-assess-btn" class="btn btn-primary">Take Assessment</button>
+        </div>
+
+        <!-- Gamification Card -->
+        <div class="card gamification-card">
+          <h3>Eco Status</h3>
+          <div class="level-indicator">
+            <div class="level-label">Level: <span id="user-eco-level" class="badge bg-accent">Eco Beginner</span></div>
+            <div class="points-label"><span id="user-points">0</span> Green Points</div>
+          </div>
+          <div class="progress-bar-container" aria-label="Points progress to next level" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="points-progress" class="progress-bar" style="width: 0%"></div>
+          </div>
+          <div class="badges-earned-section">
+            <h4>Badges Earned</h4>
+            <div id="badges-container" class="badges-row">
+              <p class="text-muted text-sm">No badges earned yet. Take your first assessment to start!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benchmark Comparison Card -->
+        <div class="card benchmarking-card">
+          <h3>Carbon Benchmarking</h3>
+          <p class="card-desc text-sm">Comparison of your footprint (t CO₂e/year) against benchmark thresholds.</p>
+          
+          <div class="benchmark-list" aria-label="Footprint comparison charts">
+            <!-- User -->
+            <div class="benchmark-item">
+              <div class="benchmark-labels">
+                <span>Your Footprint</span>
+                <span id="bench-user-val">0.0 t</span>
+              </div>
+              <div class="benchmark-bar-wrapper" role="progressbar" aria-label="Your carbon footprint scale" aria-valuemin="0" aria-valuemax="15">
+                <div id="bench-user-bar" class="benchmark-bar user-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <!-- Indian Avg -->
+            <div class="benchmark-item">
+              <div class="benchmark-labels">
+                <span>Average Indian Citizen</span>
+                <span>1.9 t</span>
+              </div>
+              <div class="benchmark-bar-wrapper" role="progressbar" aria-label="Average Indian carbon footprint scale" aria-valuenow="1.9" aria-valuemin="0" aria-valuemax="15">
+                <div class="benchmark-bar India-bar" style="width: calc((1.9 / 15) * 100%)"></div>
+              </div>
+            </div>
+            <!-- Sustainable Target -->
+            <div class="benchmark-item">
+              <div class="benchmark-labels">
+                <span>Climate Target (Max for 1.5°C)</span>
+                <span>2.0 t</span>
+              </div>
+              <div class="benchmark-bar-wrapper" role="progressbar" aria-label="Paris Agreement climate target carbon scale" aria-valuenow="2.0" aria-valuemin="0" aria-valuemax="15">
+                <div class="benchmark-bar target-bar" style="width: calc((2.0 / 15) * 100%)"></div>
+              </div>
+            </div>
+            <!-- Global Avg -->
+            <div class="benchmark-item">
+              <div class="benchmark-labels">
+                <span>Average Global Citizen</span>
+                <span>4.7 t</span>
+              </div>
+              <div class="benchmark-bar-wrapper" role="progressbar" aria-label="Average global citizen carbon scale" aria-valuenow="4.7" aria-valuemin="0" aria-valuemax="15">
+                <div class="benchmark-bar global-bar" style="width: calc((4.7 / 15) * 100%)"></div>
+              </div>
+            </div>
+          </div>
+          <p id="benchmark-feedback" class="text-sm mt-3 font-medium text-emerald" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="dashboard-grid mt-4">
+        <!-- Breakdown Chart Card -->
+        <div class="card chart-card">
+          <h3>Footprint Category Breakdown</h3>
+          <div class="chart-content">
+            <div class="svg-chart-container">
+              <svg id="donut-chart" viewBox="0 0 100 100" class="donut-svg" aria-label="Visual breakdown of carbon categories">
+                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#1e293b" stroke-width="12" />
+                <g id="donut-slices"></g>
+                <text x="50" y="52" class="donut-center-text" text-anchor="middle" id="donut-center-val">0.0</text>
+              </svg>
+            </div>
+            <div class="chart-legend" id="chart-legend">
+              <ul class="legend-list">
+                <li><span class="legend-dot color-transport" aria-hidden="true"></span> Transportation: <span id="legend-val-transport">0%</span></li>
+                <li><span class="legend-dot color-energy" aria-hidden="true"></span> Home Energy: <span id="legend-val-energy">0%</span></li>
+                <li><span class="legend-dot color-food" aria-hidden="true"></span> Food Habits: <span id="legend-val-food">0%</span></li>
+                <li><span class="legend-dot color-lifestyle" aria-hidden="true"></span> Lifestyle: <span id="legend-val-lifestyle">0%</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="highest-contributor-box alert-box hidden" id="highest-contributor-alert" aria-live="polite">
+            <strong>⚠️ Highest Contributor:</strong> <span id="highest-category-name">Transportation</span> (<span id="highest-category-pct">0%</span> of your total).
+          </div>
+        </div>
+
+        <!-- Quick Summary & Actions -->
+        <div class="card coach-preview-card">
+          <h3>Smart Coach Highlights</h3>
+          <div id="coach-highlights-content" aria-live="polite">
+            <p class="text-muted">No assessment data available. Complete the Assessment form to get custom insights from the coach.</p>
+          </div>
+          <button id="go-to-coach-btn" class="btn btn-secondary mt-3">View Full Coach Advice</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ASSESSMENT PANEL -->
+    <section id="panel-assess" role="tabpanel" aria-labelledby="tab-assess" class="tab-panel" tabindex="0">
+      <div class="max-width-form">
+        <div class="form-header">
+          <h2>Carbon Footprint Assessment</h2>
+          <p>Provide estimates of your weekly and monthly habits below to calculate your footprint. Your data is stored safely on your device.</p>
+        </div>
+
+        <!-- Form Step Progress Indicator -->
+        <div class="form-steps-indicator" aria-label="Assessment Progress Steps">
+          <div class="step-indicator active" id="indicator-step-1">1. Transport</div>
+          <div class="step-indicator" id="indicator-step-2">2. Energy</div>
+          <div class="step-indicator" id="indicator-step-3">3. Food & Lifestyle</div>
+        </div>
+
+        <form id="assessment-form" novalidate>
+          
+          <!-- STEP 1: TRANSPORTATION -->
+          <div class="form-step" id="form-step-1">
+            <h3>Category 1: Transportation</h3>
+            
+            <div class="form-group">
+              <label for="input-car-km">Car travel per week (in km):</label>
+              <input type="number" id="input-car-km" name="car_km" min="0" max="5000" step="10" value="0" required aria-describedby="car-km-error">
+              <span class="form-error-msg" id="car-km-error" aria-live="polite"></span>
+              <p class="input-hint">Estimate your average weekly driving distance. Set to 0 if you do not use a car.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-bike-km">Bicycle/E-Bike travel per week (in km):</label>
+              <input type="number" id="input-bike-km" name="bike_km" min="0" max="1000" step="5" value="0" required aria-describedby="bike-km-error">
+              <span class="form-error-msg" id="bike-km-error" aria-live="polite"></span>
+              <p class="input-hint">Biking is zero-carbon and helps increase your Eco score points.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-public-hours">Public transport hours per week (Bus, Metro, Trains):</label>
+              <input type="number" id="input-public-hours" name="public_hours" min="0" max="100" step="1" value="0" required aria-describedby="public-hours-error">
+              <span class="form-error-msg" id="public-hours-error" aria-live="polite"></span>
+              <p class="input-hint">Hours spent per week riding public transit.</p>
+            </div>
+
+            <div class="form-actions-row">
+              <div></div>
+              <button type="button" class="btn btn-primary" id="btn-next-1">Next: Home Energy</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: HOME ENERGY -->
+          <div class="form-step hidden" id="form-step-2">
+            <h3>Category 2: Home Energy</h3>
+
+            <div class="form-group">
+              <label for="input-elec-kwh">Monthly electricity consumption (in kWh):</label>
+              <input type="number" id="input-elec-kwh" name="elec_kwh" min="0" max="5000" step="10" value="0" required aria-describedby="elec-kwh-error">
+              <span class="form-error-msg" id="elec-kwh-error" aria-live="polite"></span>
+              <p class="input-hint">Refer to your recent utility bill. Average consumption is ~150-300 kWh.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-ac-hours">AC usage hours per day (average):</label>
+              <input type="number" id="input-ac-hours" name="ac_hours" min="0" max="24" step="1" value="0" required aria-describedby="ac-hours-error">
+              <span class="form-error-msg" id="ac-hours-error" aria-live="polite"></span>
+              <p class="input-hint">Number of hours you run air conditioners in your home per day.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-appliances">Other heavy appliance usage level:</label>
+              <select id="input-appliances" name="appliances" required>
+                <option value="low">Low (Basic lighting, fridge, laptop)</option>
+                <option value="medium" selected>Medium (Washing machine, water heater occasionally)</option>
+                <option value="high">High (Daily dryer, oven, heating, pool pumps)</option>
+              </select>
+              <p class="input-hint">Heavy electrical appliances affect carbon consumption parameters.</p>
+            </div>
+
+            <div class="form-actions-row">
+              <button type="button" class="btn btn-secondary" id="btn-prev-2">Back to Transport</button>
+              <button type="button" class="btn btn-primary" id="btn-next-2">Next: Food & Lifestyle</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: FOOD & LIFESTYLE -->
+          <div class="form-step hidden" id="form-step-3">
+            <h3>Category 3: Food & Lifestyle</h3>
+
+            <div class="form-group">
+              <label for="input-diet">Primary Food Diet:</label>
+              <select id="input-diet" name="diet" required>
+                <option value="vegetarian">Vegetarian (No meat, includes dairy/eggs)</option>
+                <option value="mixed" selected>Mixed (Moderate meat, poultry, dairy)</option>
+                <option value="meat-heavy">Meat-heavy (Daily beef, pork, or lamb)</option>
+              </select>
+              <p class="input-hint">Animal agriculture farming is a massive global carbon contributor.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-shopping">Online shopping packages per month:</label>
+              <input type="number" id="input-shopping" name="shopping" min="0" max="100" step="1" value="0" required aria-describedby="shopping-error">
+              <span class="form-error-msg" id="shopping-error" aria-live="polite"></span>
+              <p class="input-hint">Count of individual delivery packages received monthly.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-fashion">Fast fashion purchases per year:</label>
+              <input type="number" id="input-fashion" name="fashion" min="0" max="150" step="1" value="0" required aria-describedby="fashion-error">
+              <span class="form-error-msg" id="fashion-error" aria-live="polite"></span>
+              <p class="input-hint">New clothing items purchased annually from major chain stores.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-waste">Waste Management Habits:</label>
+              <select id="input-waste" name="waste" required>
+                <option value="recycle">Excellent (Recycle and compost, minimal trash)</option>
+                <option value="average" selected>Average (Recycle some items, standard municipal bin)</option>
+                <option value="poor">Poor (No recycling, throw everything into landfill bin)</option>
+              </select>
+            </div>
+
+            <div class="form-actions-row">
+              <button type="button" class="btn btn-secondary" id="btn-prev-3">Back to Energy</button>
+              <button type="submit" class="btn btn-accent" id="btn-submit-form">Calculate & Save</button>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </section>
+
+    <!-- WHAT-IF SIMULATOR PANEL -->
+    <section id="panel-simulator" role="tabpanel" aria-labelledby="tab-simulator" class="tab-panel" tabindex="0">
+      <div class="simulator-layout">
+        <div class="simulator-settings card">
+          <h2>What-If Simulator</h2>
+          <p class="text-sm text-muted mb-4">Adjust the sliders below to simulate carbon reductions and cost savings. See projected impacts dynamically!</p>
+          
+          <div class="simulator-slider-group">
+            <div class="slider-label-row">
+              <label for="sim-car-reduce">Reduce Car Driving</label>
+              <span id="sim-car-val">0%</span>
+            </div>
+            <input type="range" id="sim-car-reduce" min="0" max="100" value="0" class="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span class="slider-hint">Simulate substituting driving with biking, walking, or public transit.</span>
+          </div>
+
+          <div class="simulator-slider-group">
+            <div class="slider-label-row">
+              <label for="sim-diet-shift">Diet Transition</label>
+              <span id="sim-diet-val">Mixed (Current)</span>
+            </div>
+            <input type="range" id="sim-diet-shift" min="1" max="3" value="2" class="slider" aria-valuemin="1" aria-valuemax="3" aria-valuenow="2" aria-valuetext="Mixed">
+            <span class="slider-hint">Move from Meat-heavy (1), Mixed (2) to Vegetarian (3) habits.</span>
+          </div>
+
+          <div class="simulator-slider-group">
+            <div class="slider-label-row">
+              <label for="sim-energy-reduce">Reduce Electricity & AC Usage</label>
+              <span id="sim-energy-val">0%</span>
+            </div>
+            <input type="range" id="sim-energy-reduce" min="0" max="50" value="0" class="slider" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0">
+            <span class="slider-hint">Simulate turning off standby appliances and reducing AC run times.</span>
+          </div>
+          
+          <div class="simulator-actions mt-3">
+            <button id="apply-simulation-btn" class="btn btn-secondary w-full">Adopt Recommendations & Earn Points</button>
+          </div>
+        </div>
+
+        <div class="simulator-results-panel">
+          <!-- Emission Changes -->
+          <div class="card results-card bg-glass">
+            <h3>Emissions Impact</h3>
+            <div class="sim-comparison">
+              <div class="sim-metric-column">
+                <span class="sim-metric-title">Current</span>
+                <span id="sim-emissions-current" class="sim-val text-orange">0.00 t</span>
+              </div>
+              <div class="sim-arrow" aria-hidden="true">➡️</div>
+              <div class="sim-metric-column">
+                <span class="sim-metric-title">Projected</span>
+                <span id="sim-emissions-projected" class="sim-val text-green">0.00 t</span>
+              </div>
+            </div>
+            <div class="sim-reduction-badge">
+              <span class="badge bg-green text-lg" id="sim-reduction-percentage" aria-live="polite">0% Reduction</span>
+            </div>
+          </div>
+
+          <!-- Financial & Ecological Indicators -->
+          <div class="card impact-grid-card">
+            <h3>Financial & Environmental Equivalents</h3>
+            <div class="impact-metrics-grid" aria-live="polite">
+              <!-- Metric 1: Annual CO2 saved -->
+              <div class="impact-metric-box" tabindex="0">
+                <span class="impact-icon" aria-hidden="true">💨</span>
+                <div class="impact-info">
+                  <span class="impact-label">Annual CO₂ Saved</span>
+                  <span id="impact-co2-saved" class="impact-value">0 kg</span>
+                </div>
+              </div>
+              <!-- Metric 2: Fuel savings -->
+              <div class="impact-metric-box" tabindex="0">
+                <span class="impact-icon" aria-hidden="true">⛽</span>
+                <div class="impact-info">
+                  <span class="impact-label">Estimated Fuel Savings</span>
+                  <span id="impact-fuel-saved" class="impact-value">₹0</span>
+                </div>
+              </div>
+              <!-- Metric 3: Electricity savings -->
+              <div class="impact-metric-box" tabindex="0">
+                <span class="impact-icon" aria-hidden="true">⚡</span>
+                <div class="impact-info">
+                  <span class="impact-label">Electricity Bill Savings</span>
+                  <span id="impact-elec-saved" class="impact-value">₹0</span>
+                </div>
+              </div>
+              <!-- Metric 4: Trees planted -->
+              <div class="impact-metric-box" tabindex="0">
+                <span class="impact-icon" aria-hidden="true">🌳</span>
+                <div class="impact-info">
+                  <span class="impact-label">Tree-Equivalent Impact</span>
+                  <span id="impact-trees" class="impact-value">0 Trees</span>
+                </div>
+              </div>
+              <!-- Metric 5: Water footprint -->
+              <div class="impact-metric-box" tabindex="0">
+                <span class="impact-icon" aria-hidden="true">💧</span>
+                <div class="impact-info">
+                  <span class="impact-label">Virtual Water Saved</span>
+                  <span id="impact-water" class="impact-value">0 Liters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SMART COACH PANEL -->
+    <section id="panel-coach" role="tabpanel" aria-labelledby="tab-coach" class="tab-panel" tabindex="0">
+      <div class="card coach-card">
+        <div class="coach-header">
+          <div class="coach-avatar" aria-hidden="true">🌱</div>
+          <div>
+            <h2>Smart Sustainability Coach</h2>
+            <p class="text-muted">Personalized insights and weekly routines generated based on your footprint profile.</p>
+          </div>
+        </div>
+        
+        <div id="coach-content-container" class="coach-body mt-4">
+          <div class="coach-placeholder text-center">
+            <p>Please complete your <button class="btn-link">assessment form</button> to unlock coaching insights, a weekly reduction planner, and monthly challenges.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY PANEL -->
+    <section id="panel-history" role="tabpanel" aria-labelledby="tab-history" class="tab-panel" tabindex="0">
+      <div class="history-layout-grid">
+        <div class="card trend-chart-card">
+          <h3>Your Footprint Trend</h3>
+          <div class="canvas-wrapper">
+            <canvas id="trend-canvas" width="600" height="300" aria-label="Line chart showing your carbon footprint scores over time">
+              Your historical carbon assessment scores plotted over time.
+            </canvas>
+          </div>
+          <div id="trend-no-data" class="trend-placeholder text-center">
+            <p class="text-muted">No historical data available yet. Keep taking assessments over time to track your progress.</p>
+          </div>
+        </div>
+
+        <div class="card history-list-card">
+          <div class="history-header">
+            <h3>Assessment History</h3>
+            <button id="clear-history-btn" class="btn btn-danger btn-sm">Clear All History</button>
+          </div>
+          
+          <div class="table-container mt-3">
+            <table class="history-table" id="history-table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Carbon Score (t)</th>
+                  <th scope="col">Eco Points</th>
+                  <th scope="col">Trend</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body" aria-live="polite">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p>&copy; 2026 CarbonWise AI. Built for a sustainable future.</p>
+      <div class="footer-links">
+        <a href="tests/test-runner.html" class="footer-link">Run Validation Tests</a>
+        <a href="README.md" target="_blank" class="footer-link">Documentation</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
