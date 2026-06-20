@@ -75,24 +75,50 @@
     
     <!-- DASHBOARD PANEL -->
     <section id="panel-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" class="tab-panel active" tabindex="0">
-      <h2 class="sr-only">Dashboard</h2>
       
+      <!-- HERO ONBOARDING SECTION -->
+      <div id="hero-onboarding" class="hero-card bg-glass mb-4">
+        <div class="hero-content">
+          <span class="badge bg-yellow mb-2" id="hero-status-tag">Interactive Demo</span>
+          <h2>Understand, Track, and Reduce Your Carbon Footprint</h2>
+          <p class="hero-desc">Discover how your daily choices impact the environment. Track emissions, explore reduction strategies, and build sustainable habits with personalized insights.</p>
+          <div class="hero-actions-row">
+            <button id="hero-assess-btn" class="btn btn-primary">Start Assessment</button>
+            <button id="hero-demo-btn" class="btn btn-secondary">Try Demo Profile</button>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-score-bubble">
+            <div class="hero-bubble-val" id="hero-bubble-val">5.4</div>
+            <div class="hero-bubble-unit">t CO₂e / yr</div>
+            <span class="hero-bubble-label">Global Target: 2.0t</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Status Section -->
       <div class="dashboard-grid">
         <!-- Score Card -->
         <div class="card status-card">
-          <h3>Your Annual Carbon Score</h3>
-          <div class="score-display" aria-live="polite">
-            <span id="dash-score-value">0.00</span>
-            <span class="score-unit">t CO₂e / year</span>
+          <div class="card-header-row">
+            <h3>Your Annual Carbon Score</h3>
+            <span id="score-demo-badge" class="badge bg-yellow hidden">Demo</span>
+          </div>
+          <div class="score-display-wrapper">
+            <div class="score-display" aria-live="polite">
+              <span id="dash-score-value">0.00</span>
+              <span class="score-unit">t CO₂e / year</span>
+            </div>
+            <div class="score-trend-indicator text-muted text-sm" id="score-trend"></div>
           </div>
           <p class="impact-level-label">Impact Level: <span id="dash-impact-level" class="badge bg-green">Unknown</span></p>
-          <p class="card-desc">Based on your latest assessment. Retake assessments to track lifestyle improvement changes.</p>
-          <button id="quick-assess-btn" class="btn btn-primary">Take Assessment</button>
+          <p class="card-desc mt-2">Calculated relative to your local utility usages, dietary footprints, and transport logs.</p>
+          <button id="quick-assess-btn" class="btn btn-primary w-full mt-2">Take Assessment</button>
         </div>
 
         <!-- Gamification Card -->
         <div class="card gamification-card">
-          <h3>Eco Status</h3>
+          <h3>Eco Achievements</h3>
           <div class="level-indicator">
             <div class="level-label">Level: <span id="user-eco-level" class="badge bg-accent">Eco Beginner</span></div>
             <div class="points-label"><span id="user-points">0</span> Green Points</div>
@@ -111,7 +137,7 @@
         <!-- Benchmark Comparison Card -->
         <div class="card benchmarking-card">
           <h3>Carbon Benchmarking</h3>
-          <p class="card-desc text-sm">Comparison of your footprint (t CO₂e/year) against benchmark thresholds.</p>
+          <p class="card-desc text-sm">Comparison of your footprint (t CO₂e/year) against standard thresholds.</p>
           
           <div class="benchmark-list" aria-label="Footprint comparison charts">
             <!-- User -->
@@ -189,7 +215,7 @@
         <div class="card coach-preview-card">
           <h3>Smart Coach Highlights</h3>
           <div id="coach-highlights-content" aria-live="polite">
-            <p class="text-muted">No assessment data available. Complete the Assessment form to get custom insights from the coach.</p>
+            <p class="text-muted">Complete an assessment to unlock personalized sustainability insights.</p>
           </div>
           <button id="go-to-coach-btn" class="btn btn-secondary mt-3">View Full Coach Advice</button>
         </div>
@@ -447,7 +473,7 @@
         
         <div id="coach-content-container" class="coach-body mt-4">
           <div class="coach-placeholder text-center">
-            <p>Please complete your <button class="btn-link">assessment form</button> to unlock coaching insights, a weekly reduction planner, and monthly challenges.</p>
+            <p>Complete an assessment to unlock personalized sustainability insights. Go to the <button class="btn-link">assessment form</button> to start.</p>
           </div>
         </div>
       </div>
@@ -464,7 +490,7 @@
             </canvas>
           </div>
           <div id="trend-no-data" class="trend-placeholder text-center">
-            <p class="text-muted">No historical data available yet. Keep taking assessments over time to track your progress.</p>
+            <p class="text-muted">Complete an assessment to unlock personalized sustainability insights.</p>
           </div>
         </div>
 

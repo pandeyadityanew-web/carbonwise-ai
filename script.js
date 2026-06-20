@@ -1,6 +1,6 @@
 /**
- * CarbonWise AI - Core JavaScript Engine
- * Architecture: Class-based application architecture, state encapsulation, security sanitization, and PWA integration.
+ * CarbonWise AI - Core JavaScript Engine (Portfolio Upgraded)
+ * Features: Secure calculations, state management, onboarding demo streams, animated counters, action cards, and canvas graphics.
  */
 
 // ==========================================
@@ -8,32 +8,32 @@
 // ==========================================
 
 const EMISSION_FACTORS = {
-  car_co2_per_km: 0.18, // kg CO2 per km
-  public_co2_per_hour: 1.5, // kg CO2 per hour of public transit
-  electricity_co2_per_kwh: 0.85, // kg CO2 per kWh
-  ac_co2_per_hour: 1.2, // kg CO2 per hour of AC use
+  car_co2_per_km: 0.18, 
+  public_co2_per_hour: 1.5, 
+  electricity_co2_per_kwh: 0.85, 
+  ac_co2_per_hour: 1.2, 
   appliance_co2: {
-    low: 500, // kg CO2 per year
+    low: 500, 
     medium: 1000,
     high: 2000
   },
   diet_co2_per_day: {
-    vegetarian: 1.5, // kg CO2 per day
+    vegetarian: 1.5, 
     mixed: 2.5,
     meat_heavy: 4.5
   },
-  shopping_co2_per_pkg: 0.5, // kg CO2 per package delivered
-  fashion_co2_per_item: 12.0, // kg CO2 per new clothing item
+  shopping_co2_per_pkg: 0.5, 
+  fashion_co2_per_item: 12.0, 
   waste_co2_offset: {
-    recycle: -150, // kg CO2 credit per year
-    average: 100, // kg CO2 addition per year
-    poor: 350 // kg CO2 addition per year
+    recycle: -150, 
+    average: 100, 
+    poor: 350 
   }
 };
 
 const FINANCIAL_FACTORS = {
-  fuel_cost_per_km: 8.0, // INR saved per km reduced
-  elec_cost_per_kwh: 8.5 // INR saved per kWh reduced
+  fuel_cost_per_km: 8.0, 
+  elec_cost_per_kwh: 8.5 
 };
 
 const ECO_LEVEL_THRESHOLDS = [
@@ -55,9 +55,6 @@ const BADGES_LIST = {
 // 2. Pure Calculation & Helper Functions
 // ==========================================
 
-/**
- * Escapes HTML characters to prevent Cross-Site Scripting (XSS)
- */
 function escapeHTML(str) {
   if (typeof str !== 'string') return str;
   return str
@@ -68,12 +65,7 @@ function escapeHTML(str) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Calculates carbon emissions in metric tons (t CO2e) per year.
- * Bounds checking and sanitization built-in.
- */
 function calculateCarbonEmissions(inputs) {
-  // Input sanitization (no negative values allowed)
   const carKm = Math.max(0, inputs.car_km || 0);
   const bikeKm = Math.max(0, inputs.bike_km || 0);
   const publicHours = Math.max(0, inputs.public_hours || 0);
@@ -83,7 +75,7 @@ function calculateCarbonEmissions(inputs) {
   const fashion = Math.max(0, inputs.fashion || 0);
 
   const car = (carKm * EMISSION_FACTORS.car_co2_per_km * 52) / 1000;
-  const bike = 0; // Baseline zero
+  const bike = 0; 
   const transportPublic = (publicHours * EMISSION_FACTORS.public_co2_per_hour * 52) / 1000;
   const transport = car + bike + transportPublic;
 
@@ -112,9 +104,6 @@ function calculateCarbonEmissions(inputs) {
   };
 }
 
-/**
- * Evaluates carbon impact level based on annual score.
- */
 function getImpactLevel(score) {
   if (score < 3.0) return { name: "Low", class: "bg-green" };
   if (score >= 3.0 && score < 8.0) return { name: "Moderate", class: "bg-yellow" };
@@ -122,9 +111,6 @@ function getImpactLevel(score) {
   return { name: "Very High", class: "bg-red" };
 }
 
-/**
- * Evaluates points and badges based on user state history.
- */
 function evaluateGamification(assessments, appliedSimulationsCount = 0) {
   let points = 0;
   const earnedBadges = [];
@@ -133,21 +119,15 @@ function evaluateGamification(assessments, appliedSimulationsCount = 0) {
     return { points, badges: [], level: "Eco Beginner" };
   }
 
-  // Points for assessments taken
   points += assessments.length * 100;
-  
-  // Points for simulations adopted
   points += appliedSimulationsCount * 150;
-
-  // Badge: First Footprint
+  
   earnedBadges.push(BADGES_LIST.first_footprint);
   points += 50;
 
-  // Check latest assessment
   const latest = assessments[assessments.length - 1];
   const score = latest.score;
 
-  // Points for achieving low carbon footprints
   if (score < 3.0) {
     points += 200;
     earnedBadges.push(BADGES_LIST.low_carbon);
@@ -156,20 +136,17 @@ function evaluateGamification(assessments, appliedSimulationsCount = 0) {
     points += 100;
   }
 
-  // Badge: Zero Waste Hero
   const inputs = latest.inputs || {};
   if (inputs.waste === 'recycle' && (inputs.shopping || 0) < 2) {
     earnedBadges.push(BADGES_LIST.zero_waste);
     points += 50;
   }
 
-  // Badge: What-If Optimizer
   if (latest.simulationReducedScorePct >= 30) {
     earnedBadges.push(BADGES_LIST.optimizer);
     points += 50;
   }
 
-  // Badge: Green Streak (Monotonic improvement over at least 3 assessments)
   if (assessments.length >= 3) {
     let continuousImprovement = true;
     for (let i = assessments.length - 1; i >= assessments.length - 2; i--) {
@@ -184,7 +161,6 @@ function evaluateGamification(assessments, appliedSimulationsCount = 0) {
     }
   }
 
-  // Map points to Eco Level
   let level = "Eco Beginner";
   for (let i = ECO_LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
     if (points >= ECO_LEVEL_THRESHOLDS[i].minPoints) {
@@ -206,7 +182,9 @@ class CarbonWiseApp {
     this.appliedSimulationsCount = 0;
     this.currentStep = 1;
     this.deferredInstallPrompt = null;
-    
+    this.isDemoMode = false;
+    this.lastScoreVal = 0.00;
+
     this.initElements();
     this.initEventListeners();
     this.loadStateFromStorage();
@@ -216,7 +194,7 @@ class CarbonWiseApp {
   }
 
   initElements() {
-    // Navigation / Tabs
+    // Navigation
     this.tabButtons = document.querySelectorAll('.tab-btn');
     this.tabPanels = document.querySelectorAll('.tab-panel');
     this.tabList = document.querySelector('.tab-list');
@@ -229,30 +207,38 @@ class CarbonWiseApp {
     this.formSteps = document.querySelectorAll('.form-step');
     this.indicators = document.querySelectorAll('.step-indicator');
     
-    // Form buttons
+    // Form navigation buttons
     this.btnNext1 = document.getElementById('btn-next-1');
     this.btnNext2 = document.getElementById('btn-next-2');
     this.btnPrev2 = document.getElementById('btn-prev-2');
     this.btnPrev3 = document.getElementById('btn-prev-3');
+
+    // Hero Section buttons
+    this.heroAssessBtn = document.getElementById('hero-assess-btn');
+    this.heroDemoBtn = document.getElementById('hero-demo-btn');
+    this.heroStatusTag = document.getElementById('hero-status-tag');
+    this.heroBubbleVal = document.getElementById('hero-bubble-val');
 
     // Dashboard values
     this.dashScoreVal = document.getElementById('dash-score-value');
     this.dashImpactLvl = document.getElementById('dash-impact-level');
     this.quickAssessBtn = document.getElementById('quick-assess-btn');
     this.goToCoachBtn = document.getElementById('go-to-coach-btn');
+    this.scoreDemoBadge = document.getElementById('score-demo-badge');
+    this.scoreTrendIndicator = document.getElementById('score-trend');
     
-    // Gamification values
+    // Gamification
     this.userEcoLevel = document.getElementById('user-eco-level');
     this.userPoints = document.getElementById('user-points');
     this.pointsProgress = document.getElementById('points-progress');
     this.badgesContainer = document.getElementById('badges-container');
     
-    // Benchmarking elements
+    // Benchmarking
     this.benchUserVal = document.getElementById('bench-user-val');
     this.benchUserBar = document.getElementById('bench-user-bar');
     this.benchmarkFeedback = document.getElementById('benchmark-feedback');
     
-    // Donut chart elements
+    // Donut chart
     this.donutSlices = document.getElementById('donut-slices');
     this.donutCenterVal = document.getElementById('donut-center-val');
     this.legendValTransport = document.getElementById('legend-val-transport');
@@ -263,17 +249,13 @@ class CarbonWiseApp {
     this.highestCategoryName = document.getElementById('highest-category-name');
     this.highestCategoryPct = document.getElementById('highest-category-pct');
 
-    // Simulator inputs
+    // Simulator
     this.simCarReduce = document.getElementById('sim-car-reduce');
     this.simDietShift = document.getElementById('sim-diet-shift');
     this.simEnergyReduce = document.getElementById('sim-energy-reduce');
-    
-    // Simulator value displays
     this.simCarVal = document.getElementById('sim-car-val');
     this.simDietVal = document.getElementById('sim-diet-val');
     this.simEnergyVal = document.getElementById('sim-energy-val');
-    
-    // Simulator results
     this.simEmissionsCurrent = document.getElementById('sim-emissions-current');
     this.simEmissionsProjected = document.getElementById('sim-emissions-projected');
     this.simReductionPct = document.getElementById('sim-reduction-percentage');
@@ -301,7 +283,7 @@ class CarbonWiseApp {
   }
 
   initEventListeners() {
-    // Click events for tab navigation
+    // Navigation
     this.tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('aria-controls');
@@ -309,7 +291,6 @@ class CarbonWiseApp {
       });
     });
 
-    // Keyboard ARIA compliance: arrow keys inside tabs list
     if (this.tabList) {
       this.tabList.addEventListener('keydown', (e) => {
         const currentActive = document.activeElement;
@@ -330,36 +311,44 @@ class CarbonWiseApp {
       });
     }
 
-    // Theme Switch
+    // Theme Switcher
     this.themeToggle.addEventListener('click', () => this.toggleTheme());
 
-    // Navigation triggers on landing page buttons
+    // Onboarding Hero Controls
+    this.heroAssessBtn.addEventListener('click', () => this.switchTab('panel-assess'));
+    this.heroDemoBtn.addEventListener('click', () => this.loadDemoProfile());
+
+    // Navigation triggers
     this.quickAssessBtn.addEventListener('click', () => this.switchTab('panel-assess'));
     this.goToCoachBtn.addEventListener('click', () => this.switchTab('panel-coach'));
 
-    // Step-by-step form controls
+    // Form Navigation
     this.btnNext1.addEventListener('click', () => {
       if (this.validateStep(1)) this.goToStep(2);
     });
     this.btnNext2.addEventListener('click', () => {
       if (this.validateStep(2)) this.goToStep(3);
     });
-    this.btnPrev2.addEventListener('click', () => this.goToStep(1));
-    this.btnPrev3.addEventListener('click', () => this.goToStep(2));
+    this.btnPrev2.addEventListener('click', () => {
+      if (this.goToStep(1));
+    });
+    this.btnPrev3.addEventListener('click', () => {
+      if (this.goToStep(2));
+    });
 
     // Form Submission
     this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
 
-    // Simulator input changes
+    // Simulator sliders
     const triggerSimUpdate = () => this.updateSimulationResult();
     this.simCarReduce.addEventListener('input', triggerSimUpdate);
     this.simDietShift.addEventListener('input', triggerSimUpdate);
     this.simEnergyReduce.addEventListener('input', triggerSimUpdate);
 
-    // Simulator adopted button
+    // Apply Simulation
     this.applySimulationBtn.addEventListener('click', () => this.adoptSimulation());
 
-    // History Management
+    // Clear History
     this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
   }
 
@@ -374,10 +363,14 @@ class CarbonWiseApp {
       } else {
         document.body.classList.add('dark-theme');
       }
+      
+      // Determine demo mode if no assessments exist
+      this.isDemoMode = (this.assessments.length === 0);
     } catch (e) {
       console.error("Local storage read error:", e);
       this.assessments = [];
       this.appliedSimulationsCount = 0;
+      this.isDemoMode = true;
     }
   }
 
@@ -388,6 +381,79 @@ class CarbonWiseApp {
     } catch (e) {
       console.error("Local storage write error:", e);
     }
+  }
+
+  // ==========================================
+  // Demo Mode Generation Engine
+  // ==========================================
+  loadDemoProfile() {
+    if (this.assessments.length > 0) {
+      if (!confirm("Loading a Demo Profile will overwrite your existing history logs. Continue?")) {
+        return;
+      }
+    }
+
+    // Build a 3-step dynamic historical improvement path
+    const baseTime = Date.now();
+    const demoAssessments = [
+      {
+        id: (baseTime - 60*24*60*60*1000).toString(),
+        date: new Date(baseTime - 60*24*60*60*1000).toLocaleDateString(),
+        inputs: { car_km: 240, bike_km: 0, public_hours: 2, elec_kwh: 350, ac_hours: 6, appliances: "high", diet: "meat_heavy", shopping: 8, fashion: 12, waste: "poor" },
+        categories: { transport: 2.402, energy: 6.472, food: 1.643, lifestyle: 1.242 },
+        score: 11.76,
+        simulationReducedScorePct: 0
+      },
+      {
+        id: (baseTime - 30*24*60*60*1000).toString(),
+        date: new Date(baseTime - 30*24*60*60*1000).toLocaleDateString(),
+        inputs: { car_km: 150, bike_km: 10, public_hours: 4, elec_kwh: 260, ac_hours: 4, appliances: "medium", diet: "mixed", shopping: 4, fashion: 6, waste: "average" },
+        categories: { transport: 1.716, energy: 4.38, food: 0.913, lifestyle: 0.296 },
+        score: 7.31,
+        simulationReducedScorePct: 15
+      },
+      {
+        id: baseTime.toString(),
+        date: new Date(baseTime).toLocaleDateString(),
+        inputs: { car_km: 80, bike_km: 20, public_hours: 6, elec_kwh: 180, ac_hours: 2, appliances: "low", diet: "vegetarian", shopping: 2, fashion: 2, waste: "recycle" },
+        categories: { transport: 1.217, energy: 2.528, food: 0.548, lifestyle: -0.114 },
+        score: 4.18,
+        simulationReducedScorePct: 35
+      }
+    ];
+
+    this.assessments = demoAssessments;
+    this.appliedSimulationsCount = 2;
+    this.isDemoMode = false;
+    this.saveStateToStorage();
+    
+    this.renderAll();
+    
+    // Highlight bubble
+    this.heroBubbleVal.textContent = "4.2";
+    this.heroStatusTag.textContent = "Demo Profile Active";
+    this.heroStatusTag.className = "badge bg-yellow mb-2";
+
+    this.switchTab('panel-dashboard');
+    alert("Demo profile generated successfully! A 3-month improvement baseline has been loaded into your History.");
+  }
+
+  // ==========================================
+  // Number Counter Animation Helper
+  // ==========================================
+  animateValue(element, start, end, duration) {
+    if (!element) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const val = progress * (end - start) + start;
+      element.textContent = val.toFixed(2);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
   }
 
   // ==========================================
@@ -402,7 +468,6 @@ class CarbonWiseApp {
       });
     }
 
-    // Capture install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       this.deferredInstallPrompt = e;
@@ -413,9 +478,6 @@ class CarbonWiseApp {
       if (this.deferredInstallPrompt) {
         this.deferredInstallPrompt.prompt();
         this.deferredInstallPrompt.userChoice.then((choice) => {
-          if (choice.outcome === 'accepted') {
-            console.log('App install accepted');
-          }
           this.deferredInstallPrompt = null;
           this.installBtn.classList.add('hidden');
         });
@@ -433,7 +495,6 @@ class CarbonWiseApp {
   initResponsiveCanvas() {
     if (this.trendCanvas) {
       const resizeObserver = new ResizeObserver(() => {
-        // Fix: check the actual layout bounding box width instead of inline style
         const rect = this.trendCanvas.getBoundingClientRect();
         if (rect.width > 0) {
           this.drawTrendChart();
@@ -464,7 +525,6 @@ class CarbonWiseApp {
       if (panel.id === targetPanelId) {
         panel.classList.add('active');
         if (targetPanelId === 'panel-history') {
-          // Fix: wrap drawing in a requestAnimationFrame to allow container elements to reflow dimensions
           requestAnimationFrame(() => this.drawTrendChart());
         }
       } else {
@@ -473,12 +533,14 @@ class CarbonWiseApp {
     });
   }
 
-  // ==========================================
-  // Dark/Light Theme Switching
-  // ==========================================
   toggleTheme() {
     const isDark = document.body.classList.toggle('dark-theme');
     localStorage.setItem('carbonwise_theme', isDark ? 'dark' : 'light');
+    
+    // Fix: Redraw the history trend canvas immediately on theme toggle to match contrasts
+    if (document.getElementById('panel-history').classList.contains('active')) {
+      this.drawTrendChart();
+    }
   }
 
   // ==========================================
@@ -563,7 +625,6 @@ class CarbonWiseApp {
   handleFormSubmit(e) {
     e.preventDefault();
     
-    // Fix: Validate all steps to prevent form submission bypass (e.g. keyboard submit Enter in Step 1)
     const isStep1Valid = this.validateStep(1);
     const isStep2Valid = this.validateStep(2);
     const isStep3Valid = this.validateStep(3);
@@ -589,10 +650,8 @@ class CarbonWiseApp {
       waste: document.getElementById('input-waste').value
     };
 
-    // Calculate footprints
     const result = calculateCarbonEmissions(inputs);
 
-    // Save assessment to local state array
     const newAssessment = {
       id: Date.now().toString(),
       date: new Date().toLocaleDateString(),
@@ -602,51 +661,62 @@ class CarbonWiseApp {
       simulationReducedScorePct: 0
     };
 
-    this.assessments.push(newAssessment);
-    this.saveStateToStorage();
-    
-    // Refresh representations
-    this.renderAll();
+    // Fix: Show a dynamic loading state (Calculating...) on button submit to improve UX feedback
+    const submitBtn = document.getElementById('btn-submit-form');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Calculating footprint...";
 
-    // Reset Form step & navigate to Dashboard, clearing error texts
-    this.goToStep(1);
-    this.form.reset();
-    document.querySelectorAll('.form-error-msg').forEach(el => el.textContent = '');
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-    this.switchTab('panel-dashboard');
+    setTimeout(() => {
+      this.isDemoMode = false;
+      this.assessments.push(newAssessment);
+      this.saveStateToStorage();
+      
+      this.renderAll();
+
+      // Reset Form and buttons
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+
+      this.goToStep(1);
+      this.form.reset();
+      document.querySelectorAll('.form-error-msg').forEach(el => el.textContent = '');
+      document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+      this.switchTab('panel-dashboard');
+    }, 400);
   }
 
   // ==========================================
   // What-If Simulation Engine
   // ==========================================
   updateSimulationResult() {
-    if (this.assessments.length === 0) {
-      this.simEmissionsCurrent.textContent = "0.00 t";
-      this.simEmissionsProjected.textContent = "0.00 t";
-      this.simReductionPct.textContent = "0% Reduction";
-      this.simCarVal.textContent = "0%";
-      this.simDietVal.textContent = "Mixed (Current)";
-      this.simEnergyVal.textContent = "0%";
-      return;
+    let inputs, currentTotal;
+    
+    if (this.assessments.length > 0) {
+      const latest = this.assessments[this.assessments.length - 1];
+      inputs = latest.inputs;
+      currentTotal = latest.score;
+    } else {
+      inputs = { car_km: 180, bike_km: 10, public_hours: 4, elec_kwh: 240, ac_hours: 4, appliances: "medium", diet: "mixed", shopping: 4, fashion: 6, waste: "average" };
+      currentTotal = 8.36;
     }
 
-    const latest = this.assessments[this.assessments.length - 1];
-    const inputs = latest.inputs;
-    const currentTotal = latest.score;
-
-    // Retrieve slider configurations
     const carReductionPct = Math.max(0, Math.min(100, parseInt(this.simCarReduce.value) || 0));
     const dietVal = Math.max(1, Math.min(3, parseInt(this.simDietShift.value) || 2));
     const energyReductionPct = Math.max(0, Math.min(50, parseInt(this.simEnergyReduce.value) || 0));
 
-    // Update Slider displays
     this.simCarVal.textContent = `${carReductionPct}%`;
     const dietMap = ["meat_heavy", "mixed", "vegetarian"];
     const dietLabelMap = ["Meat-Heavy", "Mixed", "Vegetarian"];
     this.simDietVal.textContent = dietLabelMap[dietVal - 1];
     this.simEnergyVal.textContent = `${energyReductionPct}%`;
 
-    // Construct simulated inputs
+    // Accessibility: Update ARIA attributes on input range sliders dynamically
+    this.simCarReduce.setAttribute('aria-valuenow', carReductionPct);
+    this.simDietShift.setAttribute('aria-valuenow', dietVal);
+    this.simDietShift.setAttribute('aria-valuetext', dietLabelMap[dietVal - 1]);
+    this.simEnergyReduce.setAttribute('aria-valuenow', energyReductionPct);
+
     const simulatedInputs = {
       ...inputs,
       car_km: inputs.car_km * (1 - carReductionPct / 100),
@@ -655,38 +725,29 @@ class CarbonWiseApp {
       diet: dietMap[dietVal - 1]
     };
 
-    // Calculate simulated footprint
     const simulatedResult = calculateCarbonEmissions(simulatedInputs);
     const projectedTotal = simulatedResult.total;
     const difference = Math.max(0, currentTotal - projectedTotal);
     const reductionPercent = currentTotal > 0 ? Math.round((difference / currentTotal) * 100) : 0;
 
-    // Displays updates
     this.simEmissionsCurrent.textContent = `${currentTotal.toFixed(2)} t`;
     this.simEmissionsProjected.textContent = `${projectedTotal.toFixed(2)} t`;
     this.simReductionPct.textContent = `${reductionPercent}% Reduction`;
 
-    // Financial & Environmental Equivalent Indicators
-    const co2SavedKg = Math.round(difference * 1000); // 1 t = 1000 kg
-    
-    // Fuel savings: distance saved in km * cost
+    const co2SavedKg = Math.round(difference * 1000);
     const weeklyDistanceReduced = inputs.car_km * (carReductionPct / 100);
     const annualDistanceReduced = weeklyDistanceReduced * 52;
     const fuelSavingsINR = Math.round(annualDistanceReduced * FINANCIAL_FACTORS.fuel_cost_per_km);
 
-    // Electricity savings: bill saved in INR
     const monthlyKwhReduced = inputs.elec_kwh * (energyReductionPct / 100);
     const annualKwhReduced = monthlyKwhReduced * 12;
     const elecSavingsINR = Math.round(annualKwhReduced * FINANCIAL_FACTORS.elec_cost_per_kwh);
 
-    // Tree Equivalent: 1 tree absorbs ~22kg of CO2 per year
     const treesEquivalent = Math.round(co2SavedKg / 22);
 
-    // Water footprint savings: standard virtual water difference
     let waterSavingsLiters = 0;
     const currentDiet = inputs.diet;
     const projectedDiet = dietMap[dietVal - 1];
-    
     const dietWaterMap = { meat_heavy: 15000, mixed: 9000, vegetarian: 4000 };
     const currentWater = dietWaterMap[currentDiet] || 9000;
     const projectedWater = dietWaterMap[projectedDiet] || 9000;
@@ -703,13 +764,15 @@ class CarbonWiseApp {
   }
 
   adoptSimulation() {
-    if (this.assessments.length === 0) return;
+    if (this.isDemoMode && this.assessments.length === 0) {
+      alert("Please take an assessment or activate the Demo Profile before adopting simulated changes.");
+      return;
+    }
 
     const currentTotal = parseFloat(this.simEmissionsCurrent.textContent);
     const projectedTotal = parseFloat(this.simEmissionsProjected.textContent);
     const percentage = currentTotal > 0 ? Math.round(((currentTotal - projectedTotal) / currentTotal) * 100) : 0;
 
-    // Apply simulation to latest record as optimized targets
     const latest = this.assessments[this.assessments.length - 1];
     latest.simulationReducedScorePct = percentage;
 
@@ -724,63 +787,86 @@ class CarbonWiseApp {
   // Dynamic Views & Rendering Engine
   // ==========================================
   renderAll() {
+    this.renderHeroSection();
     this.renderDashboardScore();
     this.renderGamification();
     this.renderBenchmarking();
     this.renderDonutChart();
     this.renderSmartCoach();
     this.renderHistoryTable();
-    
-    // Sync active simulator slider states based on latest footprint
-    if (this.assessments.length > 0) {
-      const latest = this.assessments[this.assessments.length - 1];
-      const dietMap = { meat_heavy: 1, mixed: 2, vegetarian: 3 };
-      this.simDietShift.value = dietMap[latest.inputs.diet] || 2;
-      this.updateSimulationResult();
+    this.updateSimulationResult();
+  }
+
+  renderHeroSection() {
+    if (this.isDemoMode) {
+      this.heroStatusTag.textContent = "Interactive Demo";
+      this.heroStatusTag.className = "badge bg-yellow mb-2";
+      this.heroBubbleVal.textContent = "8.4";
+      this.scoreDemoBadge.classList.remove('hidden');
+    } else {
+      this.heroStatusTag.textContent = "Eco Profile Live";
+      this.heroStatusTag.className = "badge bg-green mb-2";
+      const score = this.assessments.length > 0 ? this.assessments[this.assessments.length - 1].score : 0;
+      this.heroBubbleVal.textContent = score.toFixed(1);
+      this.scoreDemoBadge.classList.add('hidden');
     }
   }
 
   renderDashboardScore() {
+    let score = 0.00;
+    
     if (this.assessments.length > 0) {
-      const latest = this.assessments[this.assessments.length - 1];
-      this.dashScoreVal.textContent = latest.score.toFixed(2);
-      
-      const impact = getImpactLevel(latest.score);
-      this.dashImpactLvl.textContent = impact.name;
-      this.dashImpactLvl.className = `badge ${impact.class}`;
+      score = this.assessments[this.assessments.length - 1].score;
       this.quickAssessBtn.textContent = "Retake Assessment";
+      
+      if (this.assessments.length > 1) {
+        const prevScore = this.assessments[this.assessments.length - 2].score;
+        const diff = score - prevScore;
+        const trendPct = Math.round((Math.abs(diff) / prevScore) * 100);
+        if (diff < 0) {
+          this.scoreTrendIndicator.innerHTML = `<span class="text-emerald">↓ ${trendPct}% improvement</span> since last test`;
+        } else if (diff > 0) {
+          this.scoreTrendIndicator.innerHTML = `<span class="text-orange">↑ ${trendPct}% increase</span> since last test`;
+        } else {
+          this.scoreTrendIndicator.textContent = "Stable score since last test";
+        }
+      } else {
+        this.scoreTrendIndicator.textContent = "Take another assessment to establish trends.";
+      }
     } else {
-      this.dashScoreVal.textContent = "0.00";
-      this.dashImpactLvl.textContent = "Unknown";
-      this.dashImpactLvl.className = "badge bg-green";
+      score = 8.36;
       this.quickAssessBtn.textContent = "Take Assessment";
+      this.scoreTrendIndicator.textContent = "Showing sample onboarding metrics.";
     }
+
+    this.animateValue(this.dashScoreVal, this.lastScoreVal, score, 800);
+    this.lastScoreVal = score;
+
+    const impact = getImpactLevel(score);
+    this.dashImpactLvl.textContent = impact.name;
+    this.dashImpactLvl.className = `badge ${impact.class}`;
   }
 
   renderGamification() {
-    const gamified = evaluateGamification(this.assessments, this.appliedSimulationsCount);
-    
-    this.userEcoLevel.textContent = gamified.level;
-    this.userPoints.textContent = gamified.points;
+    let gamified;
+    if (this.isDemoMode) {
+      gamified = { level: "Eco Beginner", points: 150, badges: [BADGES_LIST.first_footprint] };
+    } else {
+      gamified = evaluateGamification(this.assessments, this.appliedSimulationsCount);
+    }
 
-    // Calculate level progression percentage
+    this.userEcoLevel.textContent = gamified.level;
+    this.userPoints.textContent = gamified.points.toString();
+
     let currentMin = 0;
     let nextMax = 500;
-    if (gamified.level === "Eco Explorer") {
-      currentMin = 501;
-      nextMax = 1500;
-    } else if (gamified.level === "Carbon Warrior") {
-      currentMin = 1501;
-      nextMax = 3000;
-    } else if (gamified.level === "Planet Protector") {
-      currentMin = 3001;
-      nextMax = 5000; // representation cap
-    }
+    if (gamified.level === "Eco Explorer") { currentMin = 501; nextMax = 1500; }
+    else if (gamified.level === "Carbon Warrior") { currentMin = 1501; nextMax = 3000; }
+    else if (gamified.level === "Planet Protector") { currentMin = 3001; nextMax = 5000; }
 
     const progressPercent = Math.min(100, Math.max(0, ((gamified.points - currentMin) / (nextMax - currentMin)) * 100));
     this.pointsProgress.style.width = `${progressPercent}%`;
 
-    // Render earned badges with accessibility focus
     this.badgesContainer.innerHTML = '';
     if (gamified.badges.length > 0) {
       gamified.badges.forEach(badge => {
@@ -800,23 +886,16 @@ class CarbonWiseApp {
   }
 
   renderBenchmarking() {
-    if (this.assessments.length === 0) {
-      this.benchUserVal.textContent = "0.0 t";
-      this.benchUserBar.style.width = "0%";
-      this.benchmarkFeedback.textContent = "No assessment completed yet.";
-      return;
+    let score = 8.36;
+    if (this.assessments.length > 0) {
+      score = this.assessments[this.assessments.length - 1].score;
     }
-
-    const latest = this.assessments[this.assessments.length - 1];
-    const score = latest.score;
 
     this.benchUserVal.textContent = `${score.toFixed(1)} t`;
     
-    // Scale widths based on a maximum bounds representation of 15 metric tons
     const widthPercentage = Math.min(100, (score / 15) * 100);
     this.benchUserBar.style.width = `${widthPercentage}%`;
 
-    // Visual comparison descriptions
     let feedback = "";
     if (score < 1.9) {
       feedback = "🌍 Brilliant! Your carbon footprint is below the Indian citizen average. You are doing amazing!";
@@ -831,20 +910,16 @@ class CarbonWiseApp {
   }
 
   renderDonutChart() {
-    if (this.assessments.length === 0) {
-      this.donutCenterVal.textContent = "0.0";
-      this.donutSlices.innerHTML = '';
-      this.legendValTransport.textContent = '0%';
-      this.legendValEnergy.textContent = '0%';
-      this.legendValFood.textContent = '0%';
-      this.legendValLifestyle.textContent = '0%';
-      this.highestContributorAlert.classList.add('hidden');
-      return;
-    }
+    let categories, total;
 
-    const latest = this.assessments[this.assessments.length - 1];
-    const categories = latest.categories;
-    const total = latest.score;
+    if (this.assessments.length > 0) {
+      const latest = this.assessments[this.assessments.length - 1];
+      categories = latest.categories;
+      total = latest.score;
+    } else {
+      categories = { transport: 2.08, energy: 5.17, food: 0.91, lifestyle: 0.20 };
+      total = 8.36;
+    }
 
     this.donutCenterVal.textContent = total.toFixed(1);
 
@@ -858,16 +933,15 @@ class CarbonWiseApp {
     this.legendValFood.textContent = `${Math.round(foodPct)}%`;
     this.legendValLifestyle.textContent = `${Math.round(lifestylePct)}%`;
 
-    // SVG donut math parameters (radius = 40, circumference = 251.32)
     const circumference = 251.32;
     let accumulatedAngle = 0;
     let svgContent = '';
 
     const colors = {
-      transport: '#f97316',
-      energy: '#3b82f6',
-      food: '#10b981',
-      lifestyle: '#8b5cf6'
+      transport: 'var(--color-transport)',
+      energy: 'var(--color-energy)',
+      food: 'var(--color-primary)',
+      lifestyle: 'var(--color-accent)'
     };
 
     const segments = [
@@ -892,7 +966,6 @@ class CarbonWiseApp {
 
     this.donutSlices.innerHTML = svgContent;
 
-    // Identify and highlight the highest category
     let highest = segments[0];
     segments.forEach(seg => {
       if (seg.value > highest.value) highest = seg;
@@ -909,38 +982,24 @@ class CarbonWiseApp {
   }
 
   renderSmartCoach() {
-    if (this.assessments.length === 0) {
-      this.coachHighlightsContent.innerHTML = `<p class="text-muted">No assessment data available. Complete the Assessment form to get custom insights from the coach.</p>`;
-      
-      this.coachContainer.innerHTML = '';
-      const coachPl = document.createElement('div');
-      coachPl.className = 'coach-placeholder text-center';
-      
-      const p = document.createElement('p');
-      p.textContent = "Please complete your ";
-      
-      const btn = document.createElement('button');
-      btn.className = 'btn-link';
-      btn.textContent = "assessment form";
-      btn.addEventListener('click', () => this.switchTab('panel-assess'));
-      
-      p.appendChild(btn);
-      p.appendChild(document.createTextNode(" to unlock coaching insights, a weekly reduction planner, and monthly challenges."));
-      coachPl.appendChild(p);
-      this.coachContainer.appendChild(coachPl);
-      return;
+    let topCategory, latest, score, inputs;
+
+    if (this.assessments.length > 0) {
+      latest = this.assessments[this.assessments.length - 1];
+      const categories = latest.categories;
+      inputs = latest.inputs;
+      score = latest.score;
+
+      topCategory = "transport";
+      let maxScore = categories.transport;
+      if (categories.energy > maxScore) { topCategory = "energy"; maxScore = categories.energy; }
+      if (categories.food > maxScore) { topCategory = "food"; maxScore = categories.food; }
+      if (categories.lifestyle > maxScore) { topCategory = "lifestyle"; maxScore = categories.lifestyle; }
+    } else {
+      topCategory = "energy";
+      score = 8.36;
+      inputs = { car_km: 180, bike_km: 10, public_hours: 4, elec_kwh: 240, ac_hours: 4, appliances: "medium", diet: "mixed", shopping: 4, fashion: 6, waste: "average" };
     }
-
-    const latest = this.assessments[this.assessments.length - 1];
-    const categories = latest.categories;
-    const inputs = latest.inputs;
-
-    // Determine top emission source
-    let topCategory = "transport";
-    let maxScore = categories.transport;
-    if (categories.energy > maxScore) { topCategory = "energy"; maxScore = categories.energy; }
-    if (categories.food > maxScore) { topCategory = "food"; maxScore = categories.food; }
-    if (categories.lifestyle > maxScore) { topCategory = "lifestyle"; maxScore = categories.lifestyle; }
 
     const coachHighlights = {
       transport: "🚗 Your transport choices contribute most. Focus on optimizing driving miles or shifting trips to bicycles.",
@@ -949,37 +1008,59 @@ class CarbonWiseApp {
       lifestyle: "📦 Shipping deliveries and fast fashion apparel purchases dominate your footprints. Consider zero-waste reuse challenges."
     };
 
-    // Render Preview
     this.coachHighlightsContent.innerHTML = `<p class="font-medium">${escapeHTML(coachHighlights[topCategory])}</p>
       <p class="text-sm mt-2 text-muted">A full weekly blueprint and calendar are available under the Smart Coach tab.</p>`;
 
-    // Generate recommendations & calendar elements
     const recommendations = this.generatePersonalizedRecommendations(topCategory, inputs);
     const weeklyCalendar = this.generateWeeklyCalendar(topCategory);
     const challenge = this.generateMonthlyChallenge(topCategory);
     const totalPotentialSavings = (recommendations.co2Saved * 12).toFixed(1);
 
-    // Build coach content securely by escaping variable data
+    const priorityLabels = { transport: "High Priority", energy: "High Priority", food: "Medium Priority", lifestyle: "Medium Priority" };
+    const priorityClasses = { transport: "bg-orange", energy: "bg-orange", food: "bg-yellow", lifestyle: "bg-accent" };
+    const categoryIcons = { transport: "🚗", energy: "⚡", food: "🍔", lifestyle: "📦" };
+
+    const actionCardsHtml = recommendations.tips.map((tip, index) => {
+      let estSavingsText = "30-50 kg CO₂/yr";
+      if (tip.includes("Saves ~")) {
+        const parts = tip.split("Saves ~");
+        estSavingsText = parts[1].replace(')', '');
+      }
+      return `
+        <div class="coach-action-card bg-glass" tabindex="0">
+          <div class="action-card-header">
+            <span class="action-icon" aria-hidden="true">${categoryIcons[topCategory]}</span>
+            <span class="badge ${priorityClasses[topCategory]}">${priorityLabels[topCategory]}</span>
+          </div>
+          <h4>Recommendation #${index + 1}</h4>
+          <p class="action-desc">${escapeHTML(tip)}</p>
+          <div class="action-footer">
+            <span>Est. Savings: <strong class="text-emerald">${escapeHTML(estSavingsText)}</strong></span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
     this.coachContainer.innerHTML = `
       <div class="coach-section">
         <h3>Habit Analysis Summary</h3>
-        <p>Your current carbon output stands at <strong>${latest.score.toFixed(2)} t CO₂e/year</strong>. Based on habits, the primary category for emission mitigation is <strong>${topCategory.toUpperCase()}</strong>.</p>
+        <p>Your current carbon output stands at <strong>${score.toFixed(2)} t CO₂e/year</strong>. Based on habits, the primary category for emission mitigation is <strong>${topCategory.toUpperCase()}</strong>.</p>
         <div class="alert-box mt-3">
-          <strong>💡 Yearly Potential:</strong> Implementing these 5 coach tips can reduce your emissions by up to <strong>${escapeHTML(totalPotentialSavings)} kg CO₂</strong> annually and save you money!
+          <strong>💡 Yearly Potential:</strong> Implementing these coach tips can reduce your emissions by up to <strong>${escapeHTML(totalPotentialSavings)} kg CO₂</strong> annually and save you money!
         </div>
       </div>
 
       <div class="coach-section">
-        <h3>5 Actionable Recommendations</h3>
-        <ul class="coach-insights-list">
-          ${recommendations.tips.map(tip => `<li>${escapeHTML(tip)}</li>`).join('')}
-        </ul>
+        <h3>Priority Recommendations</h3>
+        <div class="coach-cards-grid mt-3">
+          ${actionCardsHtml}
+        </div>
       </div>
 
       <div class="coach-section">
         <h3>Your Personalized Weekly Reduction Plan</h3>
         <p class="text-sm text-muted">Follow this daily micro-routine to cultivate eco-friendly sustainability habits.</p>
-        <div class="coach-weekly-calendar">
+        <div class="coach-weekly-calendar mt-3">
           ${weeklyCalendar.map(day => `
             <div class="calendar-day-box">
               <span class="calendar-day-name">${escapeHTML(day.name)}</span>
@@ -1044,7 +1125,7 @@ class CarbonWiseApp {
   generateWeeklyCalendar(category) {
     const baseCalendar = [
       { name: "Mon", task: "Turn off standby power" },
-      { name: "Tue", task: "Zero single-use plastic day" },
+      { name: "Tue", task: "Zero plastic packaging day" },
       { name: "Wed", task: "Meat-free lunch choice" },
       { name: "Thu", task: "Walk/Bike short distances" },
       { name: "Fri", task: "Dry laundry on hanger" },
@@ -1091,7 +1172,7 @@ class CarbonWiseApp {
       const td = document.createElement('td');
       td.setAttribute('colspan', '4');
       td.className = 'text-center text-muted';
-      td.textContent = "No historical assessments recorded yet.";
+      td.textContent = "Complete an assessment to unlock personalized sustainability insights.";
       tr.appendChild(td);
       this.historyTableBody.appendChild(tr);
 
@@ -1120,7 +1201,6 @@ class CarbonWiseApp {
         }
       }
 
-      // Calculate historical points at this snapshot
       const assessmentHistoryBefore = this.assessments.slice(0, this.assessments.length - index);
       const pointsMock = evaluateGamification(assessmentHistoryBefore, this.appliedSimulationsCount).points;
 
@@ -1152,15 +1232,11 @@ class CarbonWiseApp {
     if (this.assessments.length === 0) return;
 
     const ctx = this.trendCanvas.getContext('2d');
-    
-    // Handle High-DPI / Retina display sharpening
     const dpr = window.devicePixelRatio || 1;
     const rect = this.trendCanvas.getBoundingClientRect();
     
-    // Fix: return early if the element has no layout dimensions
     if (rect.width === 0) return;
 
-    // Keep internal canvas scale proportional to dpr
     this.trendCanvas.width = rect.width * dpr;
     this.trendCanvas.height = Math.max(180, rect.height) * dpr;
     ctx.scale(dpr, dpr);
@@ -1180,14 +1256,14 @@ class CarbonWiseApp {
     const maxScore = Math.max(...scores, 10);
     const minScore = 0;
 
-    // Draw background grid lines & axes
-    ctx.strokeStyle = document.body.classList.contains('dark-theme') ? '#334155' : '#cbd5e1';
+    // Fix: Softer and more professional color parameters for light theme grid axes
+    const isDark = document.body.classList.contains('dark-theme');
+    ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.fillStyle = '#94a3b8';
     ctx.font = '10px Outfit';
     ctx.textAlign = 'right';
 
-    // Y Axis Grid
     for (let i = 0; i <= 4; i++) {
       const val = minScore + ((maxScore - minScore) / 4) * i;
       const y = padding + chartHeight - (i / 4) * chartHeight;
@@ -1208,7 +1284,6 @@ class CarbonWiseApp {
       return padding + chartHeight - ((score - minScore) / (maxScore - minScore)) * chartHeight;
     };
 
-    // Draw connecting line
     if (scores.length > 1) {
       ctx.beginPath();
       ctx.strokeStyle = '#10b981';
@@ -1226,7 +1301,6 @@ class CarbonWiseApp {
       });
       ctx.stroke();
 
-      // Area fill gradient
       const grad = ctx.createLinearGradient(0, padding, 0, padding + chartHeight);
       grad.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
       grad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
@@ -1242,7 +1316,6 @@ class CarbonWiseApp {
       ctx.fill();
     }
 
-    // Draw data points and date labels
     scores.forEach((score, index) => {
       const x = getXCoord(index);
       const y = getYCoord(score);
@@ -1255,7 +1328,7 @@ class CarbonWiseApp {
       ctx.strokeStyle = '#ffffff';
       ctx.stroke();
 
-      ctx.fillStyle = document.body.classList.contains('dark-theme') ? '#ffffff' : '#0f172a';
+      ctx.fillStyle = isDark ? '#ffffff' : '#0f172a';
       ctx.font = 'bold 10px Outfit';
       ctx.textAlign = 'center';
       ctx.fillText(score.toFixed(1), x, y - 10);
@@ -1270,6 +1343,7 @@ class CarbonWiseApp {
     if (confirm("Are you sure you want to permanently clear all assessment records and reset your milestones?")) {
       this.assessments = [];
       this.appliedSimulationsCount = 0;
+      this.isDemoMode = true;
       this.saveStateToStorage();
       this.renderAll();
       this.switchTab('panel-dashboard');
@@ -1277,7 +1351,6 @@ class CarbonWiseApp {
   }
 }
 
-// Initializing application instance
 window.addEventListener('DOMContentLoaded', () => {
   window.appInstance = new CarbonWiseApp();
 });
